@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PokemonModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">final-project-final-project-10</a> &gt; <a href="index.source.html" class="el_package">model</a> &gt; <span class="el_source">PokemonModel.java</span></div><h1>PokemonModel.java</h1><pre class="source lang-java linenums">package model;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Class for fetching Pokemon data from PokeAPI and managing Pokemon collections.
+ * Implements the PokemonService interface.
+ */
+public class PokemonModel implements IPokemonModel {
+    private static final String POKEAPI_BASE_URL = &quot;https://pokeapi.co/api/v2/pokemon/&quot;;
+
+    // Instance variables as per UML
+    private HttpClient httpClient;
+    private ObjectMapper objectMapper;
+    private List&lt;Pokemon&gt; pokemonCache;
+
+    /**
+     * Constructor initializes the HTTP client, object mapper, and Pokemon cache.
+     */
+<span class="fc" id="L31">    public PokemonModel() {</span>
+<span class="fc" id="L32">        this.httpClient = HttpClient.newHttpClient();</span>
+<span class="fc" id="L33">        this.objectMapper = new ObjectMapper();</span>
+<span class="fc" id="L34">        this.pokemonCache = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L35">    }</span>
+
+    /**
+     * Fetches a Pokemon by its ID from the PokeAPI.
+     *
+     * @param id the Pokemon ID
+     * @return the Pokemon object
+     * @throws IOException if an I/O error occurs
+     * @throws InterruptedException if the operation is interrupted
+     */
+    @Override
+    public Pokemon fetchPokemonById(int id) throws IOException, InterruptedException {
+<span class="nc" id="L47">        HttpRequest request = HttpRequest.newBuilder()</span>
+<span class="nc" id="L48">                .uri(URI.create(POKEAPI_BASE_URL + id))</span>
+<span class="nc" id="L49">                .build();</span>
+
+<span class="nc" id="L51">        HttpResponse&lt;String&gt; response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());</span>
+
+<span class="nc" id="L53">        Pokemon pokemon = parseApiResponse(response.body());</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (!pokemonCache.contains(pokemon)) {</span>
+<span class="nc" id="L55">            pokemonCache.add(pokemon);</span>
+        }
+
+<span class="nc" id="L58">        return pokemon;</span>
+    }
+
+    /**
+     * Fetches multiple Pokemon by ID range.
+     *
+     * @param count the number of Pokemon to fetch starting from ID 1
+     * @return list of fetched Pokemon
+     */
+    @Override
+    public List&lt;Pokemon&gt; fetchMultiplePokemon(int count) {
+<span class="fc" id="L69">        List&lt;Pokemon&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        for (int i = 1; i &lt;= count; i++) {</span>
+            try {
+<span class="fc" id="L72">                Pokemon pokemon = fetchPokemonById(i);</span>
+<span class="fc" id="L73">                result.add(pokemon);</span>
+<span class="nc" id="L74">            } catch (Exception e) {</span>
+<span class="nc" id="L75">                System.err.println(&quot;Error fetching Pokemon &quot; + i + &quot;: &quot; + e.getMessage());</span>
+<span class="fc" id="L76">            }</span>
+        }
+<span class="fc" id="L78">        return result;</span>
+    }
+
+    /**
+     * Parses API response to create a Pokemon object.
+     *
+     * @param jsonResponse the JSON response from the API
+     * @return the parsed Pokemon object
+     * @throws IOException if parsing fails
+     */
+    private Pokemon parseApiResponse(String jsonResponse) throws IOException {
+<span class="fc" id="L89">        JsonNode jsonNode = objectMapper.readTree(jsonResponse);</span>
+
+        // Extract id
+<span class="fc" id="L92">        int id = jsonNode.get(&quot;id&quot;).asInt();</span>
+
+        // Extract name
+<span class="fc" id="L95">        String name = jsonNode.get(&quot;name&quot;).asText();</span>
+
+        // Extract image URL
+<span class="fc" id="L98">        String imageUrl = jsonNode.get(&quot;sprites&quot;).get(&quot;front_default&quot;).asText();</span>
+
+        // Extract types
+<span class="fc" id="L101">        List&lt;PokemonType&gt; types = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L102">        jsonNode.get(&quot;types&quot;).forEach(type -&gt; {</span>
+<span class="fc" id="L103">            String typeName = type.get(&quot;type&quot;).get(&quot;name&quot;).asText();</span>
+<span class="fc" id="L104">            types.add(PokemonType.fromApiName(typeName));</span>
+<span class="fc" id="L105">        });</span>
+
+        // Extract stats
+<span class="fc" id="L108">        int hp = 0, attack = 0, defense = 0, specialAttack = 0, specialDefense = 0, speed = 0;</span>
+
+<span class="fc" id="L110">        JsonNode statsNode = jsonNode.get(&quot;stats&quot;);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (JsonNode statNode : statsNode) {</span>
+<span class="fc" id="L112">            String statName = statNode.get(&quot;stat&quot;).get(&quot;name&quot;).asText();</span>
+<span class="fc" id="L113">            int value = statNode.get(&quot;base_stat&quot;).asInt();</span>
+
+<span class="pc bpc" id="L115" title="1 of 7 branches missed.">            switch (statName) {</span>
+                case &quot;hp&quot;:
+<span class="fc" id="L117">                    hp = value;</span>
+<span class="fc" id="L118">                    break;</span>
+                case &quot;attack&quot;:
+<span class="fc" id="L120">                    attack = value;</span>
+<span class="fc" id="L121">                    break;</span>
+                case &quot;defense&quot;:
+<span class="fc" id="L123">                    defense = value;</span>
+<span class="fc" id="L124">                    break;</span>
+                case &quot;special-attack&quot;:
+<span class="fc" id="L126">                    specialAttack = value;</span>
+<span class="fc" id="L127">                    break;</span>
+                case &quot;special-defense&quot;:
+<span class="fc" id="L129">                    specialDefense = value;</span>
+<span class="fc" id="L130">                    break;</span>
+                case &quot;speed&quot;:
+<span class="fc" id="L132">                    speed = value;</span>
+                    break;
+            }
+<span class="fc" id="L135">        }</span>
+
+<span class="fc" id="L137">        Pokemon.PokemonStats stats = new Pokemon.PokemonStats(</span>
+                hp, attack, defense, specialAttack, specialDefense, speed
+        );
+
+<span class="fc" id="L141">        return new Pokemon(id, name, imageUrl, types, stats);</span>
+    }
+
+    /**
+     * High-level method for saving a collection of Pokemon to a JSON file.
+     * Acts as a public API for saving Pokémon data to disk.
+     * Handles necessary logic before saving like validation and filename formatting.
+     *
+     * @param collection the collection to save
+     * @param filename the file to save to
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if the collection is null or empty
+     */
+    @Override
+    public void saveCollection(List&lt;Pokemon&gt; collection, String filename) throws IOException {
+        // Validation logic
+<span class="fc bfc" id="L157" title="All 4 branches covered.">        if (collection == null || collection.isEmpty()) {</span>
+<span class="fc" id="L158">            throw new IllegalArgumentException(&quot;Cannot save empty or null Pokemon collection&quot;);</span>
+        }
+
+        // Format filename if needed
+<span class="fc" id="L162">        String formattedFilename = formatFilename(filename);</span>
+
+        // Update cache with any new Pokemon in the collection
+<span class="fc" id="L165">        updateCacheFromCollection(collection);</span>
+
+        // Delegate actual file writing to the helper method
+<span class="fc" id="L168">        writeJsonToFile(collection, formattedFilename);</span>
+
+<span class="fc" id="L170">        System.out.println(&quot;Successfully saved &quot; + collection.size() + &quot; Pokemon to &quot; + formattedFilename);</span>
+<span class="fc" id="L171">    }</span>
+
+    /**
+     * High-level method for loading a collection of Pokemon from a JSON file.
+     * Provides a clean API for loading Pokemon collections.
+     * Handles validation and processing of loaded data before returning.
+     *
+     * @param filename the file to load from
+     * @return list of loaded Pokemon
+     * @throws IOException if an I/O error occurs
+     * @throws IllegalArgumentException if the filename is invalid
+     */
+    @Override
+    public List&lt;Pokemon&gt; loadCollection(String filename) throws IOException {
+        // Validation logic
+<span class="fc bfc" id="L186" title="All 4 branches covered.">        if (filename == null || filename.trim().isEmpty()) {</span>
+<span class="fc" id="L187">            throw new IllegalArgumentException(&quot;Filename cannot be null or empty&quot;);</span>
+        }
+
+        // Format filename if needed
+<span class="fc" id="L191">        String formattedFilename = formatFilename(filename);</span>
+
+        // Check if file exists
+<span class="fc" id="L194">        File file = new File(formattedFilename);</span>
+<span class="pc bpc" id="L195" title="1 of 4 branches missed.">        if (!file.exists() || !file.isFile()) {</span>
+<span class="fc" id="L196">            throw new IOException(&quot;File does not exist: &quot; + formattedFilename);</span>
+        }
+
+        // Delegate actual file reading to the helper method
+<span class="fc" id="L200">        List&lt;Pokemon&gt; loadedPokemon = readJsonFromFile(formattedFilename);</span>
+
+        // Update cache with loaded Pokemon
+<span class="fc" id="L203">        updateCacheFromCollection(loadedPokemon);</span>
+
+<span class="fc" id="L205">        System.out.println(&quot;Successfully loaded &quot; + loadedPokemon.size() + &quot; Pokemon from &quot; + formattedFilename);</span>
+
+<span class="fc" id="L207">        return loadedPokemon;</span>
+    }
+
+    /**
+     * Low-level helper method that handles the technical part of writing to file.
+     * Focuses only on converting the list to JSON and writing it to the file.
+     *
+     * @param collection the collection to write
+     * @param filename the file to write to
+     * @throws IOException if an I/O error occurs
+     */
+    private void writeJsonToFile(List&lt;Pokemon&gt; collection, String filename) throws IOException {
+<span class="fc" id="L219">        objectMapper.writerWithDefaultPrettyPrinter()</span>
+<span class="fc" id="L220">                .writeValue(new File(filename), collection);</span>
+<span class="fc" id="L221">    }</span>
+
+    /**
+     * Low-level helper method that handles the technical part of reading from file.
+     * Focuses only on reading from the file and converting JSON to objects.
+     *
+     * @param filename the file to read from
+     * @return list of read Pokemon
+     * @throws IOException if an I/O error occurs
+     */
+    private List&lt;Pokemon&gt; readJsonFromFile(String filename) throws IOException {
+<span class="fc" id="L232">        return objectMapper.readValue(</span>
+                new File(filename),
+<span class="fc" id="L234">                new TypeReference&lt;List&lt;Pokemon&gt;&gt;() {}</span>
+        );
+    }
+
+    /**
+     * Helper method to ensure filename has the proper extension.
+     *
+     * @param filename the original filename
+     * @return the formatted filename
+     */
+    private String formatFilename(String filename) {
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (!filename.endsWith(&quot;.json&quot;)) {</span>
+<span class="fc" id="L246">            return filename + &quot;.json&quot;;</span>
+        }
+<span class="fc" id="L248">        return filename;</span>
+    }
+
+    /**
+     * Updates the cache with Pokemon from a collection if they don't already exist.
+     *
+     * @param collection the collection to update the cache from
+     */
+    private void updateCacheFromCollection(List&lt;Pokemon&gt; collection) {
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        for (Pokemon pokemon : collection) {</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">            if (!pokemonCache.contains(pokemon)) {</span>
+<span class="fc" id="L259">                pokemonCache.add(pokemon);</span>
+            }
+<span class="fc" id="L261">        }</span>
+<span class="fc" id="L262">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

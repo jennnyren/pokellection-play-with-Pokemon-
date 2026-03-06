@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="view.RoundedBorderTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2025-04-15T01:56:27" hostname="-s-MacBook-Pro.local" time="0.318">
+  <properties/>
+  <testcase name="testGetBorderInsets()" classname="view.RoundedBorderTest" time="0.303"/>
+  <testcase name="testIsBorderOpaque()" classname="view.RoundedBorderTest" time="0.001"/>
+  <testcase name="testPaintBorderWithDifferentParameters()" classname="view.RoundedBorderTest" time="0.001"/>
+  <testcase name="testBorderWithZeroRadius()" classname="view.RoundedBorderTest" time="0.001"/>
+  <testcase name="testBorderWithNullColor()" classname="view.RoundedBorderTest" time="0.001"/>
+  <testcase name="testBorderWithNegativeRadius()" classname="view.RoundedBorderTest" time="0.002"/>
+  <testcase name="testPaintBorder()" classname="view.RoundedBorderTest" time="0.002"/>
+  <testcase name="testConstructor()" classname="view.RoundedBorderTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

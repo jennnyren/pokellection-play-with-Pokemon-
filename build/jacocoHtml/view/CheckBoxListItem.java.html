@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CheckBoxListItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">final-project-final-project-10</a> &gt; <a href="index.source.html" class="el_package">view</a> &gt; <span class="el_source">CheckBoxListItem.java</span></div><h1>CheckBoxListItem.java</h1><pre class="source lang-java linenums">package view;
+
+import model.Pokemon;
+
+/**
+ * Represents an item in a checkbox list that wraps a Pokemon object
+ * and tracks whether it's selected or not.
+ * &lt;p&gt;
+ * Used in the UI to show a list of selectable Pokemon.
+ */
+public class CheckBoxListItem {
+    private final Pokemon pokemon;
+    private boolean selected;
+
+    /**
+     * Constructs a new CheckBoxListItem with the given Pokemon.
+     * By default, the item is not selected.
+     *
+     * @param pokemon the Pokemon associated with this item
+     */
+<span class="fc" id="L21">    public CheckBoxListItem(Pokemon pokemon) {</span>
+<span class="fc" id="L22">        this.pokemon = pokemon;</span>
+<span class="fc" id="L23">        this.selected = false;</span>
+<span class="fc" id="L24">    }</span>
+
+    /**
+     * Returns the Pokemon object.
+     *
+     * @return the Pokemon
+     */
+    public Pokemon getPokemon() {
+<span class="fc" id="L32">        return pokemon;</span>
+    }
+
+    /**
+     * Returns whether this item is selected.
+     *
+     * @return true if selected, false otherwise
+     */
+    public boolean isSelected() {
+<span class="fc" id="L41">        return selected;</span>
+    }
+
+    /**
+     * Sets the selected state of this item.
+     *
+     * @param selected true to select, false to deselect
+     */
+    public void setSelected(boolean selected) {
+<span class="fc" id="L50">        this.selected = selected;</span>
+<span class="fc" id="L51">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

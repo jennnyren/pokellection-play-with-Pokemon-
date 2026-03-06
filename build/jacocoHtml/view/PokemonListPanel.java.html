@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PokemonListPanel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">final-project-final-project-10</a> &gt; <a href="index.source.html" class="el_package">view</a> &gt; <span class="el_source">PokemonListPanel.java</span></div><h1>PokemonListPanel.java</h1><pre class="source lang-java linenums">package view;
+
+import model.Pokemon;
+import model.PokemonType;
+import controller.IPokemonController;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.stream.Collectors;
+import java.io.File;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+
+/**
+ * Panel for displaying a list of Pokemon.
+ * Uses a JList to show Pokemon names and allows for selection.
+ */
+public class PokemonListPanel extends JPanel {
+    private final IPokemonController controller;
+    private final DefaultListModel&lt;CheckBoxListItem&gt; listModel;
+    private final JList&lt;CheckBoxListItem&gt; pokemonList;
+    private Consumer&lt;Pokemon&gt; selectionListener;
+    private List&lt;Pokemon&gt; fullPokemonList; // Store the complete list
+    private JTextField searchField;
+    private JComboBox&lt;PokemonType&gt; typeFilter;
+    private JComboBox&lt;SortOption&gt; sortOptions;
+    private JButton saveButton;
+<span class="fc" id="L32">    private int nextTeamNumber = 1;  // For auto-incrementing file names</span>
+    private JLabel viewingLabel;
+
+    /**
+     * Enum for sort options.
+     */ 
+<span class="fc" id="L38">    private enum SortOption {</span>
+<span class="fc" id="L39">        NAME_ASC(&quot;Name A-Z&quot;),</span>
+<span class="fc" id="L40">        NAME_DESC(&quot;Name Z-A&quot;),</span>
+<span class="fc" id="L41">        ID_ASC(&quot;ID ↑&quot;),</span>
+<span class="fc" id="L42">        ID_DESC(&quot;ID ↓&quot;),</span>
+<span class="fc" id="L43">        HP_DESC(&quot;HP ↓&quot;);</span>
+
+        private final String label;
+
+<span class="fc" id="L47">        SortOption(String label) {</span>
+<span class="fc" id="L48">            this.label = label;</span>
+<span class="fc" id="L49">        }</span>
+
+        @Override
+        public String toString() {
+<span class="fc" id="L53">            return label;</span>
+        }
+    }
+
+    /**
+     * Constructs a new PokemonListPanel.
+     *
+     * @param controller the Pokemon controller
+     */
+<span class="fc" id="L62">    public PokemonListPanel(IPokemonController controller) {</span>
+<span class="fc" id="L63">        this.controller = controller;</span>
+<span class="fc" id="L64">        this.listModel = new DefaultListModel&lt;&gt;();</span>
+<span class="fc" id="L65">        this.pokemonList = new JList&lt;&gt;(listModel);</span>
+
+<span class="fc" id="L67">        initializeComponents();</span>
+<span class="fc" id="L68">        setupListeners();</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Initializes the panel components.
+     */
+    private void initializeComponents() {
+<span class="fc" id="L75">        setLayout(new BorderLayout(10, 10));</span>
+<span class="fc" id="L76">        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));</span>
+<span class="fc" id="L77">        setBackground(new Color(245, 245, 255)); // Light blue-tinted background</span>
+
+        // Top control panel
+<span class="fc" id="L80">        JPanel controlPanel = createControlPanel();</span>
+<span class="fc" id="L81">        add(controlPanel, BorderLayout.NORTH);</span>
+
+        // Configure the JList with checkbox renderer
+<span class="fc" id="L84">        configureList();</span>
+
+        // Bottom panel with only save button
+<span class="fc" id="L87">        JPanel bottomPanel = createBottomPanel();</span>
+<span class="fc" id="L88">        add(bottomPanel, BorderLayout.SOUTH);</span>
+<span class="fc" id="L89">    }</span>
+
+    private JPanel createControlPanel() {
+<span class="fc" id="L92">        JPanel panel = new JPanel(new BorderLayout(10, 10));</span>
+<span class="fc" id="L93">        panel.setOpaque(false);</span>
+
+        // Title and search panel
+<span class="fc" id="L96">        JPanel topPanel = new JPanel(new BorderLayout(10, 10));</span>
+<span class="fc" id="L97">        topPanel.setOpaque(false);</span>
+
+        // Stylized title
+<span class="fc" id="L100">        JLabel titleLabel = new JLabel(&quot;Pokédex&quot;, SwingConstants.CENTER);</span>
+<span class="fc" id="L101">        titleLabel.setFont(new Font(&quot;Arial&quot;, Font.BOLD, 24));</span>
+<span class="fc" id="L102">        titleLabel.setForeground(new Color(51, 51, 51));</span>
+<span class="fc" id="L103">        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));</span>
+<span class="fc" id="L104">        topPanel.add(titleLabel, BorderLayout.NORTH);</span>
+
+        // Add viewing label
+<span class="fc" id="L107">        viewingLabel = new JLabel(&quot;Currently Viewing: All Pokémon&quot;, SwingConstants.CENTER);</span>
+<span class="fc" id="L108">        viewingLabel.setFont(new Font(&quot;Arial&quot;, Font.ITALIC, 12));</span>
+<span class="fc" id="L109">        viewingLabel.setForeground(new Color(100, 100, 100));</span>
+<span class="fc" id="L110">        topPanel.add(viewingLabel, BorderLayout.SOUTH);</span>
+
+        // Search panel with icon
+<span class="fc" id="L113">        JPanel searchPanel = createSearchPanel();</span>
+<span class="fc" id="L114">        topPanel.add(searchPanel, BorderLayout.CENTER);</span>
+
+<span class="fc" id="L116">        panel.add(topPanel, BorderLayout.NORTH);</span>
+
+        // Filter and sort panel
+<span class="fc" id="L119">        JPanel filterSortPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));</span>
+<span class="fc" id="L120">        filterSortPanel.setOpaque(false);</span>
+
+        // Type filter
+<span class="fc" id="L123">        typeFilter = new JComboBox&lt;&gt;();</span>
+<span class="fc" id="L124">        typeFilter.addItem(null); // &quot;All&quot; option</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        for (PokemonType type : PokemonType.values()) {</span>
+<span class="fc" id="L126">            typeFilter.addItem(type);</span>
+        }
+<span class="fc" id="L128">        typeFilter.setRenderer(new TypeComboBoxRenderer());</span>
+<span class="fc" id="L129">        filterSortPanel.add(new JLabel(&quot;Type:&quot;));</span>
+<span class="fc" id="L130">        filterSortPanel.add(typeFilter);</span>
+
+        // Sort options
+<span class="fc" id="L133">        sortOptions = new JComboBox&lt;&gt;(SortOption.values());</span>
+<span class="fc" id="L134">        filterSortPanel.add(new JLabel(&quot;Sort by:&quot;));</span>
+<span class="fc" id="L135">        filterSortPanel.add(sortOptions);</span>
+
+<span class="fc" id="L137">        panel.add(filterSortPanel, BorderLayout.CENTER);</span>
+<span class="fc" id="L138">        return panel;</span>
+    }
+    /** 
+     * Configures the JList with the custom cell renderer and styling.
+     */
+    private void configureList() {
+        // Use custom cell renderer with checkboxes
+<span class="fc" id="L145">        pokemonList.setCellRenderer(new PokemonCheckBoxListRenderer());</span>
+<span class="fc" id="L146">        pokemonList.setFixedCellHeight(40); // Smaller height</span>
+
+        // Enable multiple selection
+<span class="fc" id="L149">        pokemonList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);</span>
+
+<span class="fc" id="L151">        JScrollPane scrollPane = new JScrollPane(pokemonList);</span>
+<span class="fc" id="L152">        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));</span>
+<span class="fc" id="L153">        scrollPane.getVerticalScrollBar().setUnitIncrement(16);</span>
+
+        // Add custom styling to the scroll pane
+<span class="fc" id="L156">        scrollPane.setBackground(Color.WHITE);</span>
+<span class="fc" id="L157">        scrollPane.setBorder(BorderFactory.createCompoundBorder(</span>
+                new RoundedBorder(10, new Color(200, 200, 200)),
+<span class="fc" id="L159">                BorderFactory.createEmptyBorder(5, 5, 5, 5)</span>
+        ));
+
+<span class="fc" id="L162">        add(scrollPane, BorderLayout.CENTER);</span>
+<span class="fc" id="L163">    }</span>
+
+    /**
+     * Creates the bottom panel with the save button.
+     *
+     * @return The JPanel containing the save button.
+     */ 
+    private JPanel createBottomPanel() {
+<span class="fc" id="L171">        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));</span>
+<span class="fc" id="L172">        panel.setOpaque(false);</span>
+
+<span class="fc" id="L174">        saveButton = createStyledButton(&quot;Save Team&quot;, &quot;💾&quot;);</span>
+<span class="fc" id="L175">        panel.add(saveButton);// Add save button to the panel</span>
+
+<span class="fc" id="L177">        return panel;</span>
+    }
+
+    /**
+     * Creates a styled button with an icon and text.
+     *
+     * @param text The text to display on the button.
+     * @param icon The icon to display on the button.
+     * @return The JButton created.
+     */  
+    private JButton createStyledButton(String text, String icon) {
+<span class="fc" id="L188">        JButton button = new JButton(icon + &quot; &quot; + text);</span>
+<span class="fc" id="L189">        button.setFont(new Font(&quot;Arial&quot;, Font.BOLD, 14));</span>
+<span class="fc" id="L190">        button.setForeground(new Color(51, 51, 51));</span>
+<span class="fc" id="L191">        button.setBackground(new Color(240, 240, 240));</span>
+<span class="fc" id="L192">        button.setBorder(BorderFactory.createCompoundBorder(</span>
+                new RoundedBorder(5, new Color(200, 200, 200)),
+<span class="fc" id="L194">                BorderFactory.createEmptyBorder(8, 15, 8, 15)</span>
+        ));
+<span class="fc" id="L196">        button.setFocusPainted(false);</span>
+<span class="fc" id="L197">        return button;</span>
+    }
+
+    /**
+     * Sets up event listeners for the panel.
+     */
+    private void setupListeners() {
+<span class="fc" id="L204">        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {</span>
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+<span class="fc" id="L206">                filterList();</span>
+<span class="fc" id="L207">            }</span>
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+<span class="fc" id="L210">                filterList();</span>
+<span class="fc" id="L211">            }</span>
+
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+<span class="nc" id="L214">                filterList();</span>
+<span class="nc" id="L215">            }</span>
+        });
+<span class="fc" id="L217">        typeFilter.addActionListener(e -&gt; filterAndSortList());</span>
+<span class="fc" id="L218">        sortOptions.addActionListener(e -&gt; filterAndSortList());</span>
+<span class="pc" id="L219">        saveButton.addActionListener(e -&gt; saveSelectedPokemon());</span>
+
+        // Handle checkbox clicks
+<span class="fc" id="L222">        pokemonList.addMouseListener(new MouseAdapter() {</span>
+            @Override
+            public void mouseClicked(MouseEvent e) {
+<span class="nc" id="L225">                int index = pokemonList.locationToIndex(e.getPoint());</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">                if (index &gt;= 0) {</span>
+<span class="nc" id="L227">                    CheckBoxListItem item = listModel.getElementAt(index);</span>
+<span class="nc" id="L228">                    Rectangle cellBounds = pokemonList.getCellBounds(index, index);</span>
+
+                    // Calculate checkbox bounds (assuming 20px width from left edge)
+<span class="nc" id="L231">                    Rectangle checkBoxBounds = new Rectangle(</span>
+                            cellBounds.x + 4,  // Left padding
+                            cellBounds.y + (cellBounds.height - 16) / 2,  // Vertically centered
+                            16,  // Checkbox width
+                            16   // Checkbox height
+                    );
+
+                    // If click is within checkbox bounds, toggle selection
+<span class="nc bnc" id="L239" title="All 2 branches missed.">                    if (checkBoxBounds.contains(e.getPoint())) {</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                        item.setSelected(!item.isSelected());</span>
+<span class="nc" id="L241">                        pokemonList.repaint();</span>
+                    } else {
+                        // If clicked outside checkbox, just trigger detail view
+<span class="nc bnc" id="L244" title="All 2 branches missed.">                        if (selectionListener != null) {</span>
+<span class="nc" id="L245">                            selectionListener.accept(item.getPokemon());</span>
+                        }
+                    }
+                }
+<span class="nc" id="L249">            }</span>
+        });
+<span class="fc" id="L251">    }</span>
+
+    /**
+     * Filters and sorts the list of Pokemon based on the selected type and sort option.
+     */
+    private void filterAndSortList() {
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if (fullPokemonList == null) return;</span>
+
+<span class="fc" id="L259">        List&lt;Pokemon&gt; filtered = fullPokemonList.stream()</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">                .filter(pokemon -&gt; typeFilter.getSelectedItem() == null ||</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">                        pokemon.getTypes().contains(typeFilter.getSelectedItem()))</span>
+<span class="fc" id="L262">                .collect(Collectors.toList());</span>
+
+<span class="fc" id="L264">        SortOption selectedSort = (SortOption) sortOptions.getSelectedItem();</span>
+<span class="pc bpc" id="L265" title="4 of 6 branches missed.">        switch (selectedSort) {</span>
+<span class="fc" id="L266">            case NAME_ASC -&gt; filtered.sort(Comparator.comparing(Pokemon::getName));</span>
+<span class="nc" id="L267">            case NAME_DESC -&gt; filtered.sort(Comparator.comparing(Pokemon::getName).reversed());</span>
+<span class="nc" id="L268">            case ID_ASC -&gt; filtered.sort(Comparator.comparingInt(Pokemon::getId));</span>
+<span class="fc" id="L269">            case ID_DESC -&gt; filtered.sort(Comparator.comparingInt(Pokemon::getId).reversed());</span>
+<span class="nc" id="L270">            case HP_DESC -&gt; filtered.sort(Comparator.comparingInt((Pokemon p) -&gt; p.getStats().getHp()).reversed());</span>
+        }
+
+<span class="fc" id="L273">        updateListContent(filtered);</span>
+<span class="fc" id="L274">    }</span>
+    /** 
+     * Sets up the search functionality.
+     */
+    private void setupSearch() {
+<span class="fc" id="L279">        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {</span>
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+<span class="nc" id="L281">                filterList();</span>
+<span class="nc" id="L282">            }</span>
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+<span class="fc" id="L285">                filterList();</span>
+<span class="fc" id="L286">            }</span>
+
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+<span class="fc" id="L289">                filterList();</span>
+<span class="fc" id="L290">            }</span>
+        });
+<span class="fc" id="L292">    }</span>
+
+    /**
+     * Filters the list based on the search text.
+     */ 
+    private void filterList() {
+<span class="fc" id="L298">        String searchText = searchField.getText().toLowerCase().trim();</span>
+
+<span class="fc bfc" id="L300" title="All 2 branches covered.">        if (fullPokemonList != null) {</span>
+<span class="fc" id="L301">            listModel.clear();</span>
+
+<span class="fc bfc" id="L303" title="All 2 branches covered.">            if (searchText.isEmpty()) {</span>
+<span class="fc" id="L304">                fullPokemonList.forEach(pokemon -&gt; listModel.addElement(new CheckBoxListItem(pokemon)));</span>
+            } else {
+<span class="fc" id="L306">                fullPokemonList.stream()</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">                        .filter(pokemon -&gt; pokemon.getName().toLowerCase().contains(searchText) ||</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">                                String.valueOf(pokemon.getId()).contains(searchText))</span>
+<span class="fc" id="L309">                        .forEach(pokemon -&gt; listModel.addElement(new CheckBoxListItem(pokemon)));</span>
+            }
+
+            // Select first item if list is not empty
+<span class="fc bfc" id="L313" title="All 2 branches covered.">            if (listModel.size() &gt; 0) {</span>
+<span class="fc" id="L314">                pokemonList.setSelectedIndex(0);</span>
+            }
+        }
+<span class="fc" id="L317">    }</span>
+
+    /**
+     * Updates the list with new Pokemon data.
+     *
+     * @param pokemonList the list of Pokemon to display
+     */
+    public void updatePokemonList(List&lt;Pokemon&gt; pokemonList) {
+<span class="fc" id="L325">        fullPokemonList = new ArrayList&lt;&gt;(pokemonList);</span>
+<span class="fc" id="L326">        updateListContent(pokemonList);</span>
+<span class="fc" id="L327">        viewingLabel.setText(&quot;Currently Viewing: All Pokémon&quot;);</span>
+<span class="fc" id="L328">    }</span>
+
+    /**
+     * Sets up a listener for Pokemon selection events.
+     *
+     * @param listener the consumer that will handle the selected Pokemon
+     */
+    public void setPokemonSelectionListener(Consumer&lt;Pokemon&gt; listener) {
+<span class="fc" id="L336">        this.selectionListener = listener;</span>
+        // Update the list selection listener
+<span class="fc" id="L338">        pokemonList.addListSelectionListener(e -&gt; {</span>
+<span class="pc bpc" id="L339" title="1 of 2 branches missed.">            if (!e.getValueIsAdjusting()) {</span>
+<span class="fc" id="L340">                CheckBoxListItem selectedItem = pokemonList.getSelectedValue();</span>
+<span class="pc bpc" id="L341" title="2 of 4 branches missed.">                if (selectedItem != null &amp;&amp; selectionListener != null) {</span>
+<span class="fc" id="L342">                    selectionListener.accept(selectedItem.getPokemon());</span>
+                }
+            }
+<span class="fc" id="L345">        });</span>
+<span class="fc" id="L346">    }</span>
+
+    /**
+     * Creates the search panel with an icon and text field.
+     *
+     * @return The JPanel containing the search panel.
+     */
+    private JPanel createSearchPanel() {
+<span class="fc" id="L354">        JPanel searchPanel = new JPanel(new BorderLayout(5, 0));</span>
+<span class="fc" id="L355">        searchPanel.setOpaque(false);</span>
+
+        // Search icon
+<span class="fc" id="L358">        JLabel searchIcon = new JLabel(&quot;🔍&quot;);</span>
+<span class="fc" id="L359">        searchIcon.setFont(new Font(&quot;Segoe UI Emoji&quot;, Font.PLAIN, 14));</span>
+<span class="fc" id="L360">        searchIcon.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));</span>
+<span class="fc" id="L361">        searchPanel.add(searchIcon, BorderLayout.WEST);</span>
+
+        // Search field
+<span class="fc" id="L364">        searchField = new JTextField();</span>
+<span class="fc" id="L365">        searchField.setFont(new Font(&quot;Arial&quot;, Font.PLAIN, 14));</span>
+<span class="fc" id="L366">        searchField.setBorder(BorderFactory.createCompoundBorder(</span>
+<span class="fc" id="L367">                BorderFactory.createLineBorder(new Color(200, 200, 200)),</span>
+<span class="fc" id="L368">                BorderFactory.createEmptyBorder(5, 5, 5, 5)</span>
+        ));
+<span class="fc" id="L370">        searchField.putClientProperty(&quot;JTextField.placeholderText&quot;, &quot;Search Pokémon...&quot;);</span>
+<span class="fc" id="L371">        searchPanel.add(searchField, BorderLayout.CENTER);</span>
+
+<span class="fc" id="L373">        setupSearch(); // Initialize search functionality</span>
+<span class="fc" id="L374">        return searchPanel;</span>
+    }
+
+    /**
+     * Saves the selected Pokémon to a file.
+     */
+    private void saveSelectedPokemon() {
+<span class="fc" id="L381">        List&lt;Pokemon&gt; selectedPokemon = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">        for (int i = 0; i &lt; listModel.size(); i++) {</span>
+<span class="fc" id="L383">            CheckBoxListItem item = listModel.getElementAt(i);</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">            if (item.isSelected()) {</span>
+<span class="fc" id="L385">                selectedPokemon.add(item.getPokemon());</span>
+            }
+        }
+
+<span class="fc bfc" id="L389" title="All 2 branches covered.">        if (selectedPokemon.isEmpty()) {</span>
+<span class="fc" id="L390">            JOptionPane.showMessageDialog(this,</span>
+                    &quot;Please select at least one Pokémon to save.&quot;,
+                    &quot;No Selection&quot;,
+                    JOptionPane.WARNING_MESSAGE);
+<span class="fc" id="L394">            return;</span>
+        }
+
+        // Find next available file name
+        String fileName;
+        do {
+<span class="fc" id="L400">            fileName = String.format(&quot;team%d.json&quot;, nextTeamNumber++);</span>
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">        } while (new File(fileName).exists());</span>
+
+<span class="fc" id="L403">        controller.saveCollection(fileName);</span>
+<span class="fc" id="L404">        JOptionPane.showMessageDialog(this,</span>
+                &quot;Team saved successfully to &quot; + fileName,
+                &quot;Save Successful&quot;,
+                JOptionPane.INFORMATION_MESSAGE);
+<span class="fc" id="L408">    }</span>
+
+    /**
+    * Updates the content of the displayed JList based on a given filtered list of Pokemon.
+    * &lt;p&gt;
+    * Note: This does not change the fullPokemonList data source.
+    *
+    * @param filtered The filtered list of Pokemon to display.
+    */
+    private void updateListContent(List&lt;Pokemon&gt; filtered) {
+<span class="fc" id="L418">        listModel.clear();</span>
+<span class="fc" id="L419">        filtered.forEach(pokemon -&gt; listModel.addElement(new CheckBoxListItem(pokemon)));</span>
+<span class="fc" id="L420">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

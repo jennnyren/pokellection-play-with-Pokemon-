@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="view.PokemonListPanelTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2025-04-15T01:55:54" hostname="-s-MacBook-Pro.local" time="33.911">
+  <properties/>
+  <testcase name="testUpdatePokemonList()" classname="view.PokemonListPanelTest" time="0.012"/>
+  <testcase name="testSearchWithSpecialCharacters()" classname="view.PokemonListPanelTest" time="1.308"/>
+  <testcase name="testUpdatePokemonListWithEmptyList()" classname="view.PokemonListPanelTest" time="0.008"/>
+  <testcase name="testPokemonSelectionListener()" classname="view.PokemonListPanelTest" time="0.056"/>
+  <testcase name="testSaveWithNoSelections()" classname="view.PokemonListPanelTest" time="30.917"/>
+  <testcase name="testTypeFiltering()" classname="view.PokemonListPanelTest" time="0.047"/>
+  <testcase name="testTypeFilterWithNoMatches()" classname="view.PokemonListPanelTest" time="0.008"/>
+  <testcase name="testFilterAndSortList()" classname="view.PokemonListPanelTest" time="0.015"/>
+  <testcase name="testSaveButtonTriggersControllerSave()" classname="view.PokemonListPanelTest" time="1.469"/>
+  <testcase name="testInitialization()" classname="view.PokemonListPanelTest" time="0.032"/>
+  <testcase name="testSearchCaseInsensitivity()" classname="view.PokemonListPanelTest" time="0.007"/>
+  <testcase name="testSearchFiltering()" classname="view.PokemonListPanelTest" time="0.015"/>
+  <testcase name="testUpdatePokemonListWithNull()" classname="view.PokemonListPanelTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

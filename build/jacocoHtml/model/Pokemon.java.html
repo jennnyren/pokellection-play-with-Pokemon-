@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Pokemon.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">final-project-final-project-10</a> &gt; <a href="index.source.html" class="el_package">model</a> &gt; <span class="el_source">Pokemon.java</span></div><h1>Pokemon.java</h1><pre class="source lang-java linenums">package model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Represents a Pokemon entity with its properties.
+ * Implements IPokemon interface and Serializable for JSON serialization.
+ */
+public class Pokemon implements IPokemon, Serializable {
+    private int id;
+    private String name;
+    private String imageUrl;
+    private List&lt;PokemonType&gt; types;
+    private PokemonStats stats;
+
+    /**
+     * Nested Stats Class to represent Pokemon's base stats
+     */
+    public static class PokemonStats implements Serializable {
+        private int hp;
+        private int attack;
+        private int defense;
+        private int specialAttack;
+        private int specialDefense;
+        private int speed;
+
+        /**
+         * Constructor for Pokemon stats
+         * @param hp hit points
+         * @param attack attack stat
+         * @param defense defense stat
+         * @param specialAttack special attack stat
+         * @param specialDefense special defense stat
+         * @param speed speed stat
+         */
+        public PokemonStats(int hp, int attack, int defense,
+<span class="fc" id="L38">                            int specialAttack, int specialDefense, int speed) {</span>
+<span class="fc" id="L39">            this.hp = hp;</span>
+<span class="fc" id="L40">            this.attack = attack;</span>
+<span class="fc" id="L41">            this.defense = defense;</span>
+<span class="fc" id="L42">            this.specialAttack = specialAttack;</span>
+<span class="fc" id="L43">            this.specialDefense = specialDefense;</span>
+<span class="fc" id="L44">            this.speed = speed;</span>
+<span class="fc" id="L45">        }</span>
+
+        /**
+         * Default constructor for Jackson deserialization
+         */
+<span class="fc" id="L50">        public PokemonStats() {</span>
+            // Required for Jackson
+<span class="fc" id="L52">        }</span>
+
+        // Getters
+<span class="fc" id="L55">        public int getHp() { return hp; }</span>
+<span class="fc" id="L56">        public int getAttack() { return attack; }</span>
+<span class="fc" id="L57">        public int getDefense() { return defense; }</span>
+<span class="fc" id="L58">        public int getSpecialAttack() { return specialAttack; }</span>
+<span class="fc" id="L59">        public int getSpecialDefense() { return specialDefense; }</span>
+<span class="fc" id="L60">        public int getSpeed() { return speed; }</span>
+
+        // Setters for Jackson deserialization
+<span class="fc" id="L63">        public void setHp(int hp) { this.hp = hp; }</span>
+<span class="fc" id="L64">        public void setAttack(int attack) { this.attack = attack; }</span>
+<span class="fc" id="L65">        public void setDefense(int defense) { this.defense = defense; }</span>
+<span class="fc" id="L66">        public void setSpecialAttack(int specialAttack) { this.specialAttack = specialAttack; }</span>
+<span class="fc" id="L67">        public void setSpecialDefense(int specialDefense) { this.specialDefense = specialDefense; }</span>
+<span class="fc" id="L68">        public void setSpeed(int speed) { this.speed = speed; }</span>
+
+        @Override
+        public String toString() {
+<span class="fc" id="L72">            return &quot;PokemonStats{&quot; +</span>
+                    &quot;hp=&quot; + hp +
+                    &quot;, attack=&quot; + attack +
+                    &quot;, defense=&quot; + defense +
+                    &quot;, specialAttack=&quot; + specialAttack +
+                    &quot;, specialDefense=&quot; + specialDefense +
+                    &quot;, speed=&quot; + speed +
+                    '}';
+        }
+    }
+
+    /**
+     * Constructs a Pokemon with all required properties.
+     *
+     * @param id the Pokemon's ID number
+     * @param name the Pokemon's name
+     * @param imageUrl the URL to the Pokemon's image
+     * @param types list of Pokemon types
+     * @param stats Pokemon's base stats
+     */
+<span class="fc" id="L92">    public Pokemon(int id, String name, String imageUrl, List&lt;PokemonType&gt; types, PokemonStats stats) {</span>
+<span class="fc" id="L93">        this.id = id;</span>
+<span class="fc" id="L94">        this.name = name;</span>
+<span class="fc" id="L95">        this.imageUrl = imageUrl;</span>
+<span class="fc" id="L96">        this.types = types;</span>
+<span class="fc" id="L97">        this.stats = stats;</span>
+<span class="fc" id="L98">    }</span>
+
+    /**
+     * Default constructor for Jackson deserialization.
+     */
+<span class="fc" id="L103">    public Pokemon() {</span>
+        // Required for Jackson
+<span class="fc" id="L105">    }</span>
+
+    // Getters from IPokemon interface
+    @Override
+<span class="fc" id="L109">    public int getId() { return id; }</span>
+
+    @Override
+<span class="fc" id="L112">    public String getName() { return name; }</span>
+
+    @Override
+<span class="fc" id="L115">    public String getImageUrl() { return imageUrl; }</span>
+
+    @Override
+<span class="fc" id="L118">    public List&lt;PokemonType&gt; getTypes() { return types; }</span>
+
+    @Override
+<span class="fc" id="L121">    public PokemonStats getStats() { return stats; }</span>
+
+    // Setters for Jackson deserialization
+<span class="fc" id="L124">    public void setId(int id) { this.id = id; }</span>
+<span class="fc" id="L125">    public void setName(String name) { this.name = name; }</span>
+<span class="fc" id="L126">    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }</span>
+<span class="fc" id="L127">    public void setTypes(List&lt;PokemonType&gt; types) { this.types = types; }</span>
+<span class="fc" id="L128">    public void setStats(PokemonStats stats) { this.stats = stats; }</span>
+
+    /**
+     * Returns a formatted string representation of the Pokemon.
+     * Used for display in UI components.
+     *
+     * @return the Pokemon's formatted ID and name
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L138">        return String.format(&quot;#%03d - %s&quot;, getId(), getName().toUpperCase());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

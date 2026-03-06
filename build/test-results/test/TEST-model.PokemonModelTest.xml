@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="model.PokemonModelTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2025-04-15T01:55:48" hostname="-s-MacBook-Pro.local" time="1.053">
+  <properties/>
+  <testcase name="testSaveCollectionWithoutJsonExtension()" classname="model.PokemonModelTest" time="0.982"/>
+  <testcase name="testParseApiResponseInvalidJson()" classname="model.PokemonModelTest" time="0.012"/>
+  <testcase name="testFetchPokemonByIdNotFound()" classname="model.PokemonModelTest" time="0.004"/>
+  <testcase name="testParseApiResponseBasic()" classname="model.PokemonModelTest" time="0.004"/>
+  <testcase name="testSaveNullCollection()" classname="model.PokemonModelTest" time="0.003"/>
+  <testcase name="testSaveAndLoadCollection()" classname="model.PokemonModelTest" time="0.014"/>
+  <testcase name="testParseApiResponseMultipleTypes()" classname="model.PokemonModelTest" time="0.003"/>
+  <testcase name="testFetchMultiplePokemon()" classname="model.PokemonModelTest" time="0.003"/>
+  <testcase name="testParseApiResponseMissingStats()" classname="model.PokemonModelTest" time="0.002"/>
+  <testcase name="testLoadWithNullFilename()" classname="model.PokemonModelTest" time="0.002"/>
+  <testcase name="testLoadWithEmptyFilename()" classname="model.PokemonModelTest" time="0.005"/>
+  <testcase name="testSaveEmptyCollection()" classname="model.PokemonModelTest" time="0.002"/>
+  <testcase name="testLoadNonExistentFile()" classname="model.PokemonModelTest" time="0.003"/>
+  <testcase name="testFetchPokemonById()" classname="model.PokemonModelTest" time="0.003"/>
+  <system-out><![CDATA[Successfully saved 1 Pokemon to /var/folders/vv/sd1kd2y523qcm9bmyfbtvzt40000gn/T/junit9957666249246610997/testCollection.json
+Successfully loaded 1 Pokemon from /var/folders/vv/sd1kd2y523qcm9bmyfbtvzt40000gn/T/junit9957666249246610997/testCollection.json
+Successfully saved 2 Pokemon to /var/folders/vv/sd1kd2y523qcm9bmyfbtvzt40000gn/T/junit426642457704169089/testCollection.json
+Successfully loaded 2 Pokemon from /var/folders/vv/sd1kd2y523qcm9bmyfbtvzt40000gn/T/junit426642457704169089/testCollection.json
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

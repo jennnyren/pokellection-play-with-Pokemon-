@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TeamPanel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">final-project-final-project-10</a> &gt; <a href="index.source.html" class="el_package">view</a> &gt; <span class="el_source">TeamPanel.java</span></div><h1>TeamPanel.java</h1><pre class="source lang-java linenums">package view;
+
+import model.Pokemon;
+import model.PokemonType;
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TeamPanel extends JPanel {
+    public final List&lt;Pokemon&gt; teamMembers;
+    private final JPanel cardsPanel;
+    private final JButton clearButton;
+    private final JButton returnButton;
+    private Runnable onReturnToFullList;
+    private Runnable onPokemonRemoved;
+    
+<span class="nc" id="L18">    public TeamPanel() {</span>
+<span class="nc" id="L19">        teamMembers = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L20">        setLayout(new BorderLayout(5, 5));</span>
+<span class="nc" id="L21">        setBorder(BorderFactory.createCompoundBorder(</span>
+            new RoundedBorder(10, new Color(200, 200, 200)),
+<span class="nc" id="L23">            BorderFactory.createEmptyBorder(10, 10, 10, 10)</span>
+        ));
+        
+        // Header with controls
+<span class="nc" id="L27">        JPanel headerPanel = new JPanel(new BorderLayout(10, 0));</span>
+<span class="nc" id="L28">        headerPanel.setOpaque(false);</span>
+        
+        // Left side: Title and team count
+<span class="nc" id="L31">        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));</span>
+<span class="nc" id="L32">        titlePanel.setOpaque(false);</span>
+<span class="nc" id="L33">        JLabel titleLabel = new JLabel(&quot;My Team&quot;);</span>
+<span class="nc" id="L34">        titleLabel.setFont(new Font(&quot;Arial&quot;, Font.BOLD, 16));</span>
+<span class="nc" id="L35">        titlePanel.add(titleLabel);</span>
+<span class="nc" id="L36">        headerPanel.add(titlePanel, BorderLayout.WEST);</span>
+        
+        // Right side: Buttons
+<span class="nc" id="L39">        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));</span>
+<span class="nc" id="L40">        buttonPanel.setOpaque(false);</span>
+        
+<span class="nc" id="L42">        clearButton = new JButton(&quot;Clear Team&quot;);</span>
+<span class="nc" id="L43">        clearButton.setEnabled(false);</span>
+        
+<span class="nc" id="L45">        returnButton = new JButton(&quot;Return to Full List&quot;);</span>
+<span class="nc" id="L46">        returnButton.setVisible(false);</span>
+        
+<span class="nc" id="L48">        buttonPanel.add(clearButton);</span>
+<span class="nc" id="L49">        buttonPanel.add(returnButton);</span>
+<span class="nc" id="L50">        headerPanel.add(buttonPanel, BorderLayout.EAST);</span>
+        
+<span class="nc" id="L52">        add(headerPanel, BorderLayout.NORTH);</span>
+        
+        // Cards panel with grid layout
+<span class="nc" id="L55">        cardsPanel = new JPanel(new GridLayout(0, 3, 5, 5));</span>
+<span class="nc" id="L56">        cardsPanel.setOpaque(false);</span>
+<span class="nc" id="L57">        add(new JScrollPane(cardsPanel), BorderLayout.CENTER);</span>
+        
+<span class="nc" id="L59">        setOpaque(false);</span>
+<span class="nc" id="L60">    }</span>
+    
+    private JPanel createPokemonCard(Pokemon pokemon) {
+<span class="nc" id="L63">        JPanel card = new JPanel(new BorderLayout(5, 5));</span>
+<span class="nc" id="L64">        card.setBorder(BorderFactory.createCompoundBorder(</span>
+            new RoundedBorder(5, new Color(200, 200, 200)),
+<span class="nc" id="L66">            BorderFactory.createEmptyBorder(5, 5, 5, 5)</span>
+        ));
+        
+        // Pokemon info panel (top)
+<span class="nc" id="L70">        JPanel infoPanel = new JPanel(new BorderLayout(5, 2));</span>
+<span class="nc" id="L71">        infoPanel.setOpaque(false);</span>
+        
+<span class="nc" id="L73">        JLabel nameLabel = new JLabel(pokemon.getName().toUpperCase());</span>
+<span class="nc" id="L74">        nameLabel.setFont(new Font(&quot;Arial&quot;, Font.BOLD, 12));</span>
+<span class="nc" id="L75">        infoPanel.add(nameLabel, BorderLayout.NORTH);</span>
+        
+        // Type badges
+<span class="nc" id="L78">        JPanel typePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));</span>
+<span class="nc" id="L79">        typePanel.setOpaque(false);</span>
+<span class="nc" id="L80">        pokemon.getTypes().forEach(type -&gt; {</span>
+<span class="nc" id="L81">            JLabel typeLabel = new JLabel(type.name());</span>
+<span class="nc" id="L82">            typeLabel.setFont(new Font(&quot;Arial&quot;, Font.PLAIN, 10));</span>
+<span class="nc" id="L83">            typeLabel.setOpaque(true);</span>
+<span class="nc" id="L84">            typeLabel.setBackground(getTypeColor(type));</span>
+<span class="nc" id="L85">            typeLabel.setForeground(Color.WHITE);</span>
+<span class="nc" id="L86">            typeLabel.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));</span>
+<span class="nc" id="L87">            typePanel.add(typeLabel);</span>
+<span class="nc" id="L88">        });</span>
+<span class="nc" id="L89">        infoPanel.add(typePanel, BorderLayout.CENTER);</span>
+<span class="nc" id="L90">        card.add(infoPanel, BorderLayout.CENTER);</span>
+        
+        // Remove button
+<span class="nc" id="L93">        JButton removeButton = new JButton(&quot;×&quot;);</span>
+<span class="nc" id="L94">        removeButton.setFont(new Font(&quot;Arial&quot;, Font.BOLD, 12));</span>
+<span class="nc" id="L95">        removeButton.addActionListener(e -&gt; {</span>
+<span class="nc" id="L96">            removePokemon(pokemon);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (onPokemonRemoved != null) {</span>
+<span class="nc" id="L98">                onPokemonRemoved.run();</span>
+            }
+<span class="nc" id="L100">        });</span>
+<span class="nc" id="L101">        card.add(removeButton, BorderLayout.EAST);</span>
+        
+<span class="nc" id="L103">        return card;</span>
+    }
+    
+    public void updateTeam(List&lt;Pokemon&gt; newTeam) {
+<span class="nc" id="L107">        teamMembers.clear();</span>
+<span class="nc" id="L108">        teamMembers.addAll(newTeam);</span>
+<span class="nc" id="L109">        refreshDisplay();</span>
+<span class="nc" id="L110">    }</span>
+    
+    private void removePokemon(Pokemon pokemon) {
+<span class="nc" id="L113">        teamMembers.remove(pokemon);</span>
+<span class="nc" id="L114">        refreshDisplay();</span>
+<span class="nc" id="L115">    }</span>
+    
+    private void refreshDisplay() {
+<span class="nc" id="L118">        cardsPanel.removeAll();</span>
+<span class="nc" id="L119">        teamMembers.forEach(pokemon -&gt; cardsPanel.add(createPokemonCard(pokemon)));</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        clearButton.setEnabled(!teamMembers.isEmpty());</span>
+<span class="nc" id="L121">        revalidate();</span>
+<span class="nc" id="L122">        repaint();</span>
+<span class="nc" id="L123">    }</span>
+    
+    public void setClearAction(Runnable action) {
+<span class="nc" id="L126">        clearButton.addActionListener(e -&gt; {</span>
+<span class="nc" id="L127">            teamMembers.clear();</span>
+<span class="nc" id="L128">            refreshDisplay();</span>
+<span class="nc" id="L129">            action.run();</span>
+<span class="nc" id="L130">        });</span>
+<span class="nc" id="L131">    }</span>
+    
+    public void setTeamMode(boolean isTeamMode) {
+<span class="nc" id="L134">        returnButton.setVisible(isTeamMode);</span>
+<span class="nc" id="L135">        revalidate();</span>
+<span class="nc" id="L136">        repaint();</span>
+<span class="nc" id="L137">    }</span>
+    
+    public void setOnReturnToFullList(Runnable action) {
+<span class="nc" id="L140">        onReturnToFullList = action;</span>
+<span class="nc" id="L141">        returnButton.addActionListener(e -&gt; {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (onReturnToFullList != null) {</span>
+<span class="nc" id="L143">                onReturnToFullList.run();</span>
+            }
+<span class="nc" id="L145">        });</span>
+<span class="nc" id="L146">    }</span>
+    
+    public void setOnPokemonRemoved(Runnable action) {
+<span class="nc" id="L149">        onPokemonRemoved = action;</span>
+<span class="nc" id="L150">    }</span>
+    
+    private Color getTypeColor(PokemonType type) {
+<span class="nc bnc" id="L153" title="All 5 branches missed.">        return switch (type) {</span>
+<span class="nc" id="L154">            case FIRE -&gt; new Color(255, 100, 100);</span>
+<span class="nc" id="L155">            case WATER -&gt; new Color(100, 100, 255);</span>
+<span class="nc" id="L156">            case GRASS -&gt; new Color(100, 255, 100);</span>
+<span class="nc" id="L157">            case ELECTRIC -&gt; new Color(255, 255, 100);</span>
+<span class="nc" id="L158">            default -&gt; new Color(200, 200, 200);</span>
+        };
+    }
+    
+    public List&lt;Pokemon&gt; getTeamMembers() {
+<span class="nc" id="L163">        return new ArrayList&lt;&gt;(teamMembers);</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

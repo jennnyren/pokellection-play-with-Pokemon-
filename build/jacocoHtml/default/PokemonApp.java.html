@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PokemonApp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">final-project-final-project-10</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">PokemonApp.java</span></div><h1>PokemonApp.java</h1><pre class="source lang-java linenums">import controller.IPokemonController;
+import controller.PokemonController;
+import model.IPokemonModel;
+import model.PokemonModel;
+import view.IPokemonView;
+import view.MainPokemonFrame;
+
+import javax.swing.*;
+
+
+/**
+ * Main entry point for the Pokemon application.
+ * Creates and connects the Model, View, and Controller components.
+ */
+<span class="nc" id="L15">public class PokemonApp {</span>
+
+    /**
+     * Main method that launches the application.
+     *
+     * @param args command line arguments
+     */
+    public static void main(String[] args) {
+        // Use SwingUtilities to ensure UI is created on the Event Dispatch Thread
+<span class="nc" id="L24">        SwingUtilities.invokeLater(() -&gt; {</span>
+<span class="nc" id="L25">            PokemonApp app = new PokemonApp();</span>
+<span class="nc" id="L26">            app.initializeApplication();</span>
+<span class="nc" id="L27">        });</span>
+<span class="nc" id="L28">    }</span>
+
+    /**
+     * Initializes the components of the application and starts it.
+     * Creates Model, Controller, and View instances and connects them.
+     * Loads initial Pokemon data.
+     */
+    private void initializeApplication() {
+        // Create model
+<span class="nc" id="L37">        IPokemonModel model = new PokemonModel();</span>
+
+        // Create controller with reference to model
+<span class="nc" id="L40">        IPokemonController controller = new PokemonController(model);</span>
+
+        // Create view with reference to controller
+<span class="nc" id="L43">        IPokemonView view = new MainPokemonFrame(controller);</span>
+
+        // Display the view
+<span class="nc" id="L46">        view.display();</span>
+
+        // Load data in a background thread to keep UI responsive
+<span class="nc" id="L49">        new Thread(() -&gt; {</span>
+            // Fetch initial data
+<span class="nc" id="L51">            System.out.println(&quot;Loading Pokemon data, please wait...&quot;);</span>
+<span class="nc" id="L52">            controller.fetchInitialPokemon(100); // Load first 100 Pokemon</span>
+
+            // Use SwingUtilities.invokeLater to update UI components
+            // This ensures UI updates happen on the EDT for thread safety
+<span class="nc" id="L56">            SwingUtilities.invokeLater(() -&gt; {</span>
+                // Update the list panel with all loaded Pokemon
+<span class="nc" id="L58">                view.updatePokemonList(controller.getPokemonCollection());</span>
+
+                // If Pokemon were successfully loaded, show the first one in the details panel
+<span class="nc bnc" id="L61" title="All 2 branches missed.">                if (!controller.getPokemonCollection().isEmpty()) {</span>
+<span class="nc" id="L62">                    view.showPokemonDetails(controller.getPokemonCollection().get(0));</span>
+                }
+
+<span class="nc" id="L65">                System.out.println(&quot;Application initialized successfully!&quot;);</span>
+<span class="nc" id="L66">            });</span>
+<span class="nc" id="L67">        }).start(); // The start() method begins execution of the new thread</span>
+<span class="nc" id="L68">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="view.TypeComboBoxRendererTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-04-15T01:56:28" hostname="-s-MacBook-Pro.local" time="0.023">
+  <properties/>
+  <testcase name="testGetListCellRendererComponent_OtherValue()" classname="view.TypeComboBoxRendererTest" time="0.002"/>
+  <testcase name="testGetListCellRendererComponent_CellHasFocus()" classname="view.TypeComboBoxRendererTest" time="0.003"/>
+  <testcase name="testGetListCellRendererComponent_Selected()" classname="view.TypeComboBoxRendererTest" time="0.002"/>
+  <testcase name="testGetListCellRendererComponent_NullValue()" classname="view.TypeComboBoxRendererTest" time="0.001"/>
+  <testcase name="testGetListCellRendererComponent_DifferentIndex()" classname="view.TypeComboBoxRendererTest" time="0.001"/>
+  <testcase name="testGetListCellRendererComponent_PokemonTypeValue()" classname="view.TypeComboBoxRendererTest" time="0.002"/>
+  <testcase name="testGetListCellRendererComponent_AllPokemonTypes()" classname="view.TypeComboBoxRendererTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

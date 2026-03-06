@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="model.PokemonTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2025-04-15T01:55:49" hostname="-s-MacBook-Pro.local" time="0.024">
+  <properties/>
+  <testcase name="testGettersAndSetters()" classname="model.PokemonTest" time="0.0"/>
+  <testcase name="testEmptyTypes()" classname="model.PokemonTest" time="0.0"/>
+  <testcase name="testStatsDefaultConstructor()" classname="model.PokemonTest" time="0.001"/>
+  <testcase name="testToString()" classname="model.PokemonTest" time="0.001"/>
+  <testcase name="testStatsConstructor()" classname="model.PokemonTest" time="0.001"/>
+  <testcase name="testPokemonConstructor()" classname="model.PokemonTest" time="0.001"/>
+  <testcase name="testMultipleTypes()" classname="model.PokemonTest" time="0.001"/>
+  <testcase name="testStatsToString()" classname="model.PokemonTest" time="0.011"/>
+  <testcase name="testStatsGettersAndSetters()" classname="model.PokemonTest" time="0.001"/>
+  <testcase name="testDefaultConstructor()" classname="model.PokemonTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

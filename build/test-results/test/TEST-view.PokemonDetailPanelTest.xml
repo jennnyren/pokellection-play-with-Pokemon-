@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="view.PokemonDetailPanelTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2025-04-15T01:55:54" hostname="-s-MacBook-Pro.local" time="0.039">
+  <properties/>
+  <testcase name="testDisplayPokemonWithExtremeStats()" classname="view.PokemonDetailPanelTest" time="0.007"/>
+  <testcase name="testCreateTypeLabel()" classname="view.PokemonDetailPanelTest" time="0.001"/>
+  <testcase name="testCapitalizeFirst()" classname="view.PokemonDetailPanelTest" time="0.002"/>
+  <testcase name="testCapitalizeFirstWithSpecialCharacters()" classname="view.PokemonDetailPanelTest" time="0.001"/>
+  <testcase name="testDisplayPokemonDetails()" classname="view.PokemonDetailPanelTest" time="0.003"/>
+  <testcase name="testImageLoadingError()" classname="view.PokemonDetailPanelTest" time="0.003"/>
+  <testcase name="testLoadPokemonImage()" classname="view.PokemonDetailPanelTest" time="0.001"/>
+  <testcase name="testInitialization()" classname="view.PokemonDetailPanelTest" time="0.002"/>
+  <testcase name="testDisplayPokemonDetailsNull()" classname="view.PokemonDetailPanelTest" time="0.002"/>
+  <testcase name="testDisplayPokemonWithZeroStats()" classname="view.PokemonDetailPanelTest" time="0.003"/>
+  <testcase name="testCreateStatsChart()" classname="view.PokemonDetailPanelTest" time="0.003"/>
+  <testcase name="testDisplayPokemonWithNoTypes()" classname="view.PokemonDetailPanelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
