@@ -1,5 +1,3 @@
-# Pokellection)
-
 # Pokéllection
 
 ## Team Members
